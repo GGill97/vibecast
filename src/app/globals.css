@@ -3,8 +3,11 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-primary: #06b6d4; /* cyan-500 */
+  --color-secondary: #0891b2; /* cyan-600 */
+  --color-accent: #fbbf24; /* amber-400 */
+  --color-background: #f3f4f6; /* gray-100 */
+  --color-text: #1f2937; /* gray-800 */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -15,9 +18,8 @@
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+  @apply bg-gray-100 text-gray-800;
 }
 
 @layer utilities {
@@ -25,3 +27,7 @@ body {
     text-wrap: balance;
   }
 }
+
+/* Role in the application: */
+/* This file sets up the foundational styles for your entire application. */
+/* It integrates Tailwind CSS and provides a way to use custom color variables throughout your app. */
