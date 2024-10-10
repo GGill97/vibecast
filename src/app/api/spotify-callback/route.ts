@@ -8,10 +8,12 @@ export async function GET(request: NextRequest) {
 
   console.log("Spotify Callback - Received code:", code ? "Yes" : "No");
   console.log("Spotify Callback - Received error:", error);
+
   if (error) {
     console.error("Error from Spotify:", error);
-    return NextResponse.redirect(new URL("/?error=" + error, request.url));
+    return NextResponse.redirect(new URL(`/?error=${error}`, request.url));
   }
+
   if (!code) {
     console.error("No code provided by Spotify");
     return NextResponse.redirect(new URL("/?error=no_code", request.url));
@@ -22,26 +24,32 @@ export async function GET(request: NextRequest) {
     const data = await spotifyApi.authorizationCodeGrant(code);
     console.log("Token exchange successful");
 
-    await setTokens(
-      data.body["access_token"],
-      data.body["refresh_token"],
-      data.body["expires_in"]
-    );
+    const { access_token, refresh_token, expires_in } = data.body;
 
-    // Redirect to the home page or a success page
-    return NextResponse.redirect(new URL("/success", request.url));
+    // Set tokens in cookies
+    const response = NextResponse.redirect(new URL("/", request.url));
+    response.cookies.set("spotifyAccessToken", access_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: expires_in,
+      sameSite: "strict",
+    });
+
+    // Add this new cookie for client-side detection of Spotify connection
+    response.cookies.set("spotifyConnected", "true", {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: expires_in,
+      sameSite: "strict",
+    });
+
+    await setTokens(access_token, refresh_token, expires_in);
+
+    return response;
   } catch (error) {
     console.error("Error exchanging code for tokens:", error);
     return NextResponse.redirect(
       new URL("/?error=token_exchange", request.url)
     );
-    {
-      error: "Failed to authenticate with Spotify";
-    }
-    {
-      status: 500;
-    }
   }
 }
-// This handles the callback from Spotify after user authentication.
-// It processes the authentication code and exchanges it for access tokens.

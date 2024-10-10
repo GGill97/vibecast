@@ -18,7 +18,7 @@ export async function GET(req: Request) {
   try {
     const scopes = ["user-read-private", "user-read-email", "user-top-read"];
     const state = "some-state-of-my-choice";
-    const authorizeURL = spotifyApi?.createAuthorizeURL(scopes, state);
+    const authorizeURL = spotifyApi.createAuthorizeURL(scopes, state);
 
     if (!authorizeURL) {
       throw new Error("Failed to create Spotify authorize URL");
